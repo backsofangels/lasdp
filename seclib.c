@@ -66,7 +66,7 @@ int persistTestCenterRegistration (TestCenter t) {
 
 /*
  *  RETURN CODE POSSIBLE
- *  
+ *
  *  -1: error opening file
  *  0:  login successful
  *  1:  wrong password
@@ -74,8 +74,8 @@ int persistTestCenterRegistration (TestCenter t) {
  */
 
 
-//TODO: ottimizzare questa roba 
-int login() {
+//TODO: ottimizzare questa roba
+int login(char *sessionFiscalCode) {
     char fiscalCode[17];
     char password[21]; //put to all 0 after readout
     printf("Please enter your fiscal code\n");
@@ -89,25 +89,25 @@ int login() {
         char localPassword[21];
         int eof = 1;
         do {
-            
+
             eof = fscanf(file, "%s\t%s\n", localFiscalCode, localPassword);
             printf("Fetched fiscal code: %s\n", localFiscalCode);
             if (strcasecmp(localFiscalCode, fiscalCode) == 0) {
                 //fscanf(file, "%s\n", localPassword);
                 if (strcmp(password, localPassword) == 0) {
                     printf("It's a match!\n");
+                    strcpy(sessionFiscalCode, fiscalCode);
                     return 0;
                 } else {
                     printf("not matching passwords\n");
-                    return 1;
                 }
             }
             printf("eof value: %d\n", eof);
         }
         while (strcasecmp(localFiscalCode, fiscalCode) != 0 && eof != -1); //controllare valore tornato da eof su windows
-
+        return 1;
     }
-    return -1;
+    return 2;
 }
 
 int loginTestCenter() {
@@ -124,7 +124,7 @@ int loginTestCenter() {
         char localPassword[21];
         int eof = 1;
         do {
-            
+
             eof = fscanf(file, "%s\t%s\n", localIdNumber, localPassword);
             printf("Fetched id number: %s\n", localIdNumber);
             if (strcasecmp(localIdNumber, idNUmber) == 0) {

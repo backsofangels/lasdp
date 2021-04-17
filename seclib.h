@@ -3,7 +3,7 @@
 
 //Messi a 17/21 per considerare anche il carattere di terminazione nullo, in caso di tempo superstite, creare un
 //wrapper di fputc ed fgetc per esattamente la lunghezza definita in input del codice o della password o della stringa in generale letta da file
-// oppure smette con la terminazione scelta passata anch'essa come parametro. 
+// oppure smette con la terminazione scelta passata anch'essa come parametro.
 //In più su austria abbiamo fatto peggiori tacconi quindi per favore statevi zitti
 
 typedef struct customer {
@@ -21,7 +21,7 @@ void signUp();
 void signUpTestCenter();
 int persistRegistration(Person p);
 int persistTestCenterRegistration(TestCenter t);
-int login();
+int login(char *sessionFiscalCode);
 int loginTestCenter();
 
 //DEBUG ONLY

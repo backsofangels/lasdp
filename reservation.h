@@ -1,24 +1,25 @@
 #ifndef RESERVATION_H
 #define RESERVATION_H
 
+#include<stdio.h>
+
 typedef struct Reservation {
+    int reservationId;
     char fiscalCodeCustomer[17];
-    int timeOfTheDay; //0 for morning, 1 for afternoon, 2 for evening
-    int hasSympthoms;
+    int timeOfTheDay; //1 for morning, 2 for afternoon, 3 for evening
     struct Reservation *nextReservation;
 } Reservation;
 
-typedef struct Day {
-    //Maybe should have been an array (?)
-    Reservation morning[2];
-    Reservation afternoon[2];
-    Reservation evening[2];
-} Day;
-
-Reservation *createReservation(char *customerFiscalCode, int timeOfTheDay, int hasSympthoms);
-Reservation *performReservation(Reservation *r);
+Reservation *createReservation(char *customerFiscalCode, int timeOfTheDay);
+Reservation *performReservation(Reservation *r, char *customerFiscalCode);
 Reservation *insertReservationOnEnd(Reservation *head, Reservation *r);
-Reservation *insertReservationOnBeginning(Reservation *r);
-void printReservations(Reservation *r);
-
+Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymptomatics);
+void deleteReservation(Reservation *r, int reservationId);
+void saveReservationOnFile(Reservation *headOfReservation, char *filename);
+void printReservations(Reservation *r, FILE *file, int printOnFile);
+Reservation *searchReservationById(Reservation *head, int id);
+Reservation *searchReservationByCustomer(Reservation *head, char *fiscalCode);
+Reservation *searchReservationByTimeOfDay(Reservation *head, int timeOfTheDay);
+Reservation *loadReservationsFromFile(char *filename);
+void printMergedListsOnFileWrapper();
 #endif
