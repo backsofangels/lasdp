@@ -24,6 +24,7 @@ Reservation *performReservation(Reservation *headOfReservation, char *fiscalCode
 }
 
 Reservation *insertReservationOnEnd(Reservation *head, Reservation *r) {
+    printf("Inserting. ");
     if (head == NULL) {
         return r;
     } else {
@@ -57,14 +58,18 @@ Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymp
 void saveReservationOnFile(Reservation *headOfReservation, char *filename) {
     FILE *file = NULL;
     file = fopen(filename, "a+");
+
     if (file == NULL) {
+        printf("nullFile\n");
         printReservations(headOfReservation, NULL, 0);
     } else if (file != NULL) {
+        printf("Printing on file\n");
         printReservations(headOfReservation, file, 1);
     }
 }
 
 Reservation *searchReservationById(Reservation *headOfReservation, int reservationId) {
+    printf("searchReservationById()\n");
     if (headOfReservation == NULL) {
         return headOfReservation;
     } else if (headOfReservation->reservationId == reservationId) {
@@ -74,6 +79,7 @@ Reservation *searchReservationById(Reservation *headOfReservation, int reservati
 }
 
 Reservation *searchReservationByCustomer(Reservation *headOfReservation, char *customerFiscalCode) {
+    printf("searchReservationByCustomer()\n");
     if (headOfReservation == NULL) {
         return headOfReservation;
     }
@@ -84,16 +90,25 @@ Reservation *searchReservationByCustomer(Reservation *headOfReservation, char *c
 }
 
 Reservation *searchReservationByTimeOfDay (Reservation *headOfReservation, int timeOfTheDay) {
-    if (headOfReservation == NULL) {
-        printf("Head to be found null\n");
-        return headOfReservation;
+    printf("searchReservationByTimeOfDay()\n");
+    Reservation *localHead = headOfReservation;
+    Reservation *results = NULL;
+
+    //printReservations(headOfReservation, NULL, 0);
+
+    while (localHead != NULL) {
+            printf("LocalHead not null. ");
+            if (localHead->timeOfTheDay == timeOfTheDay) {
+                Reservation *temp = createReservation(localHead->fiscalCodeCustomer, timeOfTheDay);
+                temp->reservationId = localHead->reservationId;
+                printf("Found node. ");
+                results = insertReservationOnEnd(results, temp);
+                printf("Going next.\n");
+            } else printf ("Not found node. \n");
+        localHead = localHead->nextReservation;
     }
-    if (headOfReservation->timeOfTheDay == timeOfTheDay) {
-        printf("found\n");
-        return headOfReservation;
-    }
-    printf("searching\n");
-    headOfReservation = searchReservationByTimeOfDay(headOfReservation->nextReservation, timeOfTheDay);
+
+    return results;
 }
 
 void printReservations(Reservation *head, FILE *file, int printOnFile) {
@@ -133,7 +148,7 @@ Reservation *loadReservationsFromFile(char *filename) {
 }
 
 void printMergedListsOnFileWrapper() {
-    printf("Merging lists\n");
+    
     printf("Loading lists\n");
     Reservation *symptReservations = NULL;
     Reservation *asymptReservations = NULL;
@@ -141,6 +156,9 @@ void printMergedListsOnFileWrapper() {
     asymptReservations = loadReservationsFromFile("asymptomatics.txt");
 
     Reservation *merged = mergeReservationLists(symptReservations, asymptReservations);
+    printf("Merging lists\n");
+
+    printReservations(merged, NULL, 0);
 
     saveReservationOnFile(merged, "reservations.txt");
 }

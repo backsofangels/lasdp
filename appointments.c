@@ -5,30 +5,47 @@
 #include "appointments.h"
 
 Day disponiAppuntamenti(Reservation *reservation) {
+    printf("disponiAppuntamenti()\n");
     Day d;
     int i = 0;
-    for (i = 0; i < 2; i++) {
-        Reservation r;
-        Reservation *res = searchReservationByTimeOfDay(reservation, 1);
-        r.reservationId = res->reservationId;
-        strcpy(r.fiscalCodeCustomer, res->fiscalCodeCustomer);
-        r.timeOfTheDay = res->timeOfTheDay;
+
+    //printReservations(reservation, NULL, 0);
+    
+    Reservation *res = NULL;
+    
+
+    //printReservations(res, NULL, 0);
+
+    //Mi sono portato le prenotazioni per una fascia oraria in res
+    while (i < 2 && res != NULL) {
+        Reservation *tmp = res;
+        res = searchReservationByTimeOfDay(reservation, 1);
+        d.morning[i].reservationId = tmp->reservationId;
+        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
+        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
+        res = res->nextReservation;
+        i++;
+    }
+    
+
+    while (i < 2 && res != NULL) {
+        Reservation *tmp = res;
+        res = searchReservationByTimeOfDay(reservation, 2);
+        d.morning[i].reservationId = tmp->reservationId;
+        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
+        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
+        res = res->nextReservation;
+        i++;
     }
 
-    for(i = 0; i < 2; i++) {
-        Reservation r;
-        Reservation *res = searchReservationByTimeOfDay(reservation, 2);
-        r.reservationId = res->reservationId;
-        strcpy(r.fiscalCodeCustomer, res->fiscalCodeCustomer);
-        r.timeOfTheDay = res->timeOfTheDay;
-    }
-
-    for(i = 0; i < 2; i++) {
-        Reservation r;
-        Reservation *res = searchReservationByTimeOfDay(reservation, 3);
-        r.reservationId = res->reservationId;
-        strcpy(r.fiscalCodeCustomer, res->fiscalCodeCustomer);
-        r.timeOfTheDay = res->timeOfTheDay;
+    while (i < 2 && res != NULL) {
+        Reservation *tmp = res;
+        res = searchReservationByTimeOfDay(reservation, 3);
+        d.morning[i].reservationId = tmp->reservationId;
+        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
+        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
+        res = res->nextReservation;
+        i++;
     }
 
     return d;
@@ -37,7 +54,7 @@ Day disponiAppuntamenti(Reservation *reservation) {
 //TODO: Remove this function, only for testing purpose
 
 void disponiAppuntamentiTest() {
-    printf("Dispongo gli appuntamenti\n");
+    printf("disponiAppuntamentiTest()\n");
     Reservation *reservations = loadReservationsFromFile("reservations.txt");
     if (reservations == NULL) {
         return;
@@ -46,10 +63,17 @@ void disponiAppuntamentiTest() {
     Day d = disponiAppuntamenti(reservations);
 
     int i = 0;
+    printf("Reservations:\n");
+    printf("Morning reservations\n");
     for (i = 0; i < 2; i++) {
-        printf("Morning reservations:\n");
         printSingleReservationInstance(d.morning[i]);
+    }
+    printf("afternoon reservations\n");
+    for (i = 0; i < 2; i++) {
         printSingleReservationInstance(d.afternoon[i]);
+    }
+    printf("evening reservations\n");
+    for (i = 0; i < 2; i++) {
         printSingleReservationInstance(d.evening[i]);
     }
 }

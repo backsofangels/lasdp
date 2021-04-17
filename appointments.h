@@ -16,6 +16,7 @@ Day deleteAppointments(int reservationId);
 Day addAppointment(Reservation r);
 //TODO: eliminare, solo per debug
 void disponiAppuntamentiTest();
+void printSingleReservationInstance(Reservation r);
 
 
 #endif
