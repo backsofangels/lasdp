@@ -4,19 +4,11 @@
 #include "reservation.h"
 
 typedef struct Day {
-    //Maybe should have been an array (?)
-    Reservation morning[2];
-    Reservation afternoon[2];
-    Reservation evening[2];
+    PtrReservation timeOfDay[3];
 } Day;
 
-Day disponiAppuntamenti(Reservation *reservations);
-Day printAppointments(Day day);
-Day deleteAppointments(int reservationId);
-Day addAppointment(Reservation r);
-//TODO: eliminare, solo per debug
-void disponiAppuntamentiTest();
-void printSingleReservationInstance(Reservation r);
-
+Day initializeNewDay();
+Day disponiAppuntamentiNew(Reservation *reservationList);
+int countElementsInQueue(Reservation *resLis);
 
 #endif

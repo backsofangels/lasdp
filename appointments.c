@@ -4,82 +4,52 @@
 #include "reservation.h"
 #include "appointments.h"
 
-Day disponiAppuntamenti(Reservation *reservation) {
-    printf("disponiAppuntamenti()\n");
+//Init of day, use it whenever a new instance of the struct Day is needed
+Day initializeDay() {
     Day d;
-    int i = 0;
-
-    //printReservations(reservation, NULL, 0);
-    
-    Reservation *res = NULL;
-    
-
-    //printReservations(res, NULL, 0);
-
-    //Mi sono portato le prenotazioni per una fascia oraria in res
-    while (i < 2 && res != NULL) {
-        Reservation *tmp = res;
-        res = searchReservationByTimeOfDay(reservation, 1);
-        d.morning[i].reservationId = tmp->reservationId;
-        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
-        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
-        res = res->nextReservation;
-        i++;
+    for (int i = 0; i < 3; i++) {
+        d.timeOfDay[i] = NULL;
     }
-    
-
-    while (i < 2 && res != NULL) {
-        Reservation *tmp = res;
-        res = searchReservationByTimeOfDay(reservation, 2);
-        d.morning[i].reservationId = tmp->reservationId;
-        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
-        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
-        res = res->nextReservation;
-        i++;
-    }
-
-    while (i < 2 && res != NULL) {
-        Reservation *tmp = res;
-        res = searchReservationByTimeOfDay(reservation, 3);
-        d.morning[i].reservationId = tmp->reservationId;
-        strcpy(d.morning[i].fiscalCodeCustomer, tmp->fiscalCodeCustomer);
-        d.morning[i].timeOfTheDay = tmp->timeOfTheDay;
-        res = res->nextReservation;
-        i++;
-    }
-
     return d;
 }
 
-//TODO: Remove this function, only for testing purpose
-
-void disponiAppuntamentiTest() {
-    printf("disponiAppuntamentiTest()\n");
+//Automagically takes in reservations and creates appointments for the day
+Day disponiAppuntamentiNew(Reservation *list) {
     Reservation *reservations = loadReservationsFromFile("reservations.txt");
+    Day day = initializeDay();
+
     if (reservations == NULL) {
-        return;
+        return day;
     }
 
-    Day d = disponiAppuntamenti(reservations);
+    while (list != NULL) {
+        //La creazione di un nuovo puntatore a reservation è data dal fatto che ho bisogno di un dato temporaneo da tenermi in pancia
+        //e che poi devo anche andare a staccare dalla sua lista precedente che inevitabilmente mi porterei dietro
+        Reservation *temp = createReservation(list->fiscalCodeCustomer, list->timeOfTheDay);
+        temp->reservationId = list->reservationId;
+        temp->nextReservation = NULL;
 
-    int i = 0;
-    printf("Reservations:\n");
-    printf("Morning reservations\n");
-    for (i = 0; i < 2; i++) {
-        printSingleReservationInstance(d.morning[i]);
+        switch (list->timeOfTheDay) {
+            case 1:
+            case 2:
+            case 3:
+                if (countElementsInQueue(day.timeOfDay[(list->timeOfTheDay)-1]) < 2) {
+                    day.timeOfDay[(list->timeOfTheDay)-1] = insertReservationOnEnd(day.timeOfDay[list->timeOfTheDay-1], temp);
+                }
+                break;
+            default:
+                //Not admitted case
+                break;
+        }
+        list = list->nextReservation;
     }
-    printf("afternoon reservations\n");
-    for (i = 0; i < 2; i++) {
-        printSingleReservationInstance(d.afternoon[i]);
-    }
-    printf("evening reservations\n");
-    for (i = 0; i < 2; i++) {
-        printSingleReservationInstance(d.evening[i]);
-    }
+    return day;
 }
 
-void printSingleReservationInstance(Reservation r) {
-    printf("\tReservation Id: %d\n", r.reservationId);
-    printf("\tReservation CF: %s\n", r.fiscalCodeCustomer);
-    printf("\tReservation time of the day: %d\n", r.timeOfTheDay);
+int countElementsInQueue(Reservation *list) {
+    if (list == NULL) {
+        return 0;
+    } else {
+        return 1 + countElementsInQueue(list->nextReservation);
+    }
 }
