@@ -69,10 +69,10 @@ int main() {
                 case 5:
                 terminationFlag = 1;
                 if (symptomatics != NULL) {
-                    saveReservationOnFile(symptomatics, "symptomatics.txt");
+                    saveReservationOnFile(symptomatics, "symptomatics.txt", "a");
                 }
                 if (asymptomatics != NULL) {
-                    saveReservationOnFile(asymptomatics, "asymptomatics.txt");
+                    saveReservationOnFile(asymptomatics, "asymptomatics.txt", "a");
                 }
                 printf("Bye.\n");
                 break;
@@ -106,7 +106,6 @@ int main() {
 
                 case 25:
                     printMergedListsOnFileWrapper();
-                    disponiAppuntamentiTest();
                     break;
 
                 default:
