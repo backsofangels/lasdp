@@ -6,7 +6,7 @@
 
 Reservation *createReservation(char *customerFiscalCode, int timeOfTheDay) {
     Reservation *r = NULL;
-    r = (struct Reservation*) malloc(sizeof(struct Reservation));
+    r = (struct Reservation*) calloc(1, sizeof(struct Reservation));
     strcpy(r->fiscalCodeCustomer, customerFiscalCode);
     r->reservationId = rand() % 200;
     r->timeOfTheDay = timeOfTheDay;
@@ -55,9 +55,9 @@ Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymp
     return mergedList;
 }
 
-void saveReservationOnFile(Reservation *headOfReservation, char *filename) {
+void saveReservationOnFile(Reservation *headOfReservation, char *filename, char *mode) {
     FILE *file = NULL;
-    file = fopen(filename, "a+");
+    file = fopen(filename, mode);
 
     if (file == NULL) {
         printf("nullFile\n");
@@ -66,6 +66,8 @@ void saveReservationOnFile(Reservation *headOfReservation, char *filename) {
         printf("Printing on file\n");
         printReservations(headOfReservation, file, 1);
     }
+
+    fclose(file);
 }
 
 Reservation *searchReservationById(Reservation *headOfReservation, int reservationId) {
@@ -94,8 +96,6 @@ Reservation *searchReservationByTimeOfDay (Reservation *headOfReservation, int t
     Reservation *localHead = headOfReservation;
     Reservation *results = NULL;
 
-    //printReservations(headOfReservation, NULL, 0);
-
     while (localHead != NULL) {
             printf("LocalHead not null. ");
             if (localHead->timeOfTheDay == timeOfTheDay) {
@@ -117,7 +117,9 @@ void printReservations(Reservation *head, FILE *file, int printOnFile) {
     }
     if (file != NULL && printOnFile == 1) {
         fprintf(file, "%d\t%s\t%d\n", head->reservationId, head->fiscalCodeCustomer, head->timeOfTheDay);
-    } else printf("%d\t%s\t%d\n", head->reservationId, head->fiscalCodeCustomer, head->timeOfTheDay);
+    } else if (printOnFile == 0) { 
+        printf("%d\t%s\t%d\n", head->reservationId, head->fiscalCodeCustomer, head->timeOfTheDay); 
+    }
     printReservations(head->nextReservation, file, printOnFile);
 }
 
@@ -155,10 +157,8 @@ void printMergedListsOnFileWrapper() {
     symptReservations = loadReservationsFromFile("symptomatics.txt");
     asymptReservations = loadReservationsFromFile("asymptomatics.txt");
 
-    Reservation *merged = mergeReservationLists(symptReservations, asymptReservations);
     printf("Merging lists\n");
+    Reservation *merged = mergeReservationLists(symptReservations, asymptReservations);
 
-    printReservations(merged, NULL, 0);
-
-    saveReservationOnFile(merged, "reservations.txt");
+    saveReservationOnFile(merged, "reservations.txt", "w");
 }
