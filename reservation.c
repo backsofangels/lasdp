@@ -157,7 +157,6 @@ void printMergedListsOnFileWrapper() {
     symptReservations = loadReservationsFromFile("symptomatics.txt");
     asymptReservations = loadReservationsFromFile("asymptomatics.txt");
 
-    printf("Merging lists\n");
     Reservation *merged = mergeReservationLists(symptReservations, asymptReservations);
 
     saveReservationOnFile(merged, "reservations.txt", "w");
