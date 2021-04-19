@@ -24,7 +24,6 @@ Reservation *performReservation(Reservation *headOfReservation, char *fiscalCode
 }
 
 Reservation *insertReservationOnEnd(Reservation *head, Reservation *r) {
-    printf("Inserting. ");
     if (head == NULL) {
         return r;
     } else {
@@ -33,18 +32,17 @@ Reservation *insertReservationOnEnd(Reservation *head, Reservation *r) {
     return head;
 }
 
-void deleteReservation(Reservation *r, int reservationId) {
-    if (r == NULL) {
-        return;
-    }
+Reservation *deleteReservation(Reservation *r, int reservationId) {
+    if (r == NULL) { return r; }
     if (r->reservationId == reservationId) {
-        Reservation *tmp = r;
-        r = r->nextReservation;
-        free(tmp);
-        return;
-    }
-    deleteReservation(r->nextReservation, reservationId);
+        Reservation *tmp = r->nextReservation;
+        r->nextReservation = NULL;
+        free(r);
+        return tmp;
+    } else r->nextReservation = deleteReservation(r->nextReservation, reservationId);
+    return r;
 }
+
 
 Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymptomatics) {
     Reservation *mergedList = symptomatics;
@@ -63,7 +61,6 @@ void saveReservationOnFile(Reservation *headOfReservation, char *filename, char 
         printf("nullFile\n");
         printReservations(headOfReservation, NULL, 0);
     } else if (file != NULL) {
-        printf("Printing on file\n");
         printReservations(headOfReservation, file, 1);
     }
 
@@ -150,8 +147,6 @@ Reservation *loadReservationsFromFile(char *filename) {
 }
 
 void printMergedListsOnFileWrapper() {
-    
-    printf("Loading lists\n");
     Reservation *symptReservations = NULL;
     Reservation *asymptReservations = NULL;
     symptReservations = loadReservationsFromFile("symptomatics.txt");
