@@ -14,11 +14,11 @@ Day initializeDay() {
 }
 
 //Automagically takes in reservations and creates appointments for the day
-Day disponiAppuntamentiNew(Reservation *list) {
-    Reservation *reservations = loadReservationsFromFile("reservations.txt");
+Day disponiAppuntamentiNew() {
+    Reservation *list = loadReservationsFromFile("reservations.txt");
     Day day = initializeDay();
 
-    if (reservations == NULL) {
+    if (list == NULL) {
         return day;
     }
 
@@ -52,4 +52,35 @@ int countElementsInQueue(Reservation *list) {
     } else {
         return 1 + countElementsInQueue(list->nextReservation);
     }
+}
+
+void printDailyAppointmentsWrapper(int printOnFile, Day day) {
+    if (printOnFile == 0) {
+        printDailyAppointmentsOnFile(day, 0, NULL, 0);
+    } else if (printOnFile == 1) {
+        FILE *file = NULL;
+        file = fopen("daily-appointments.txt", "w");
+        printDailyAppointmentsOnFile(day, 0, file, printOnFile);
+        fclose(file);
+    }
+}
+
+void printDailyAppointmentsOnFile(Day day, int timeOfDay, FILE *file, int printOnFile) {
+    if (timeOfDay == 3) {
+        return;
+    } else {
+        printReservations(day.timeOfDay[timeOfDay], file, printOnFile);
+        printDailyAppointmentsOnFile(day, timeOfDay + 1, file, printOnFile);
+    }
+}
+
+Day removeAppointmentById(Day day, int appointmentId) {
+    int timeOfDay = 0;
+
+    while (timeOfDay < 3) {
+        day.timeOfDay[timeOfDay] = deleteReservationNew(day.timeOfDay[timeOfDay], appointmentId);
+        timeOfDay++;
+    }
+
+    return day;
 }
