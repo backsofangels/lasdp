@@ -88,24 +88,39 @@ int main() {
             printf("Please make your choice\n");
             printf("1. Register\n2. Login\n5. Exit\n");
             scanf("%d", &actionFlowControl);
-            switch (actionFlowControl)             {
-                case 1:
+            switch (actionFlowControl) {
+                case 1:     //Registration
                     signUpTestCenter();
                     break;
 
-                case 2:
+                case 2:     //Login
                     isLoggedIn = loginTestCenter();
                     printf("Login result is %d\n", isLoggedIn);
                     break;
 
-                case 5:
-                    //Termination
+                case 5:     //Termination
                     terminationFlag = 1;
                     printf("Bye.\n");
                     break;
 
-                case 25:
+                case 25:    //Visualizza richieste di tamponi e fissa apputamenti
                     printMergedListsOnFileWrapper();
+                    Day day = disponiAppuntamentiNew();
+                    printDailyAppointmentsWrapper(1, day);
+                    printf("\nBefore\n");
+                    printDailyAppointmentsWrapper(0, day);
+                    day = removeAppointmentById(day, 145);
+                    printf("\nAfter\n");
+                    printDailyAppointmentsWrapper(0, day);
+                    break;
+                
+                case 26: //Aggiungi manualmente appuntamento
+                    break;
+                
+                case 27: //Rimuovi manualmente appuntamento
+                    break;
+
+                case 28: //Stampa appuntamenti del giorno (anche su file)
                     break;
 
                 default:
