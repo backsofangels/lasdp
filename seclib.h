@@ -21,7 +21,7 @@ void signUp();
 void signUpTestCenter();
 int persistRegistration(Person p);
 int persistTestCenterRegistration(TestCenter t);
-int login(char *sessionFiscalCode);
+int loginCustomer(char *sessionFiscalCode);
 int loginTestCenter();
 
 //DEBUG ONLY
