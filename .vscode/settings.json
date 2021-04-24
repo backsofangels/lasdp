@@ -2,6 +2,8 @@
     "files.associations": {
         "appointments.h": "c",
         "covidtest.h": "c",
-        "quarantinelog.h": "c"
+        "quarantinelog.h": "c",
+        "reservation.h": "c",
+        "seclib.h": "c"
     }
 }
