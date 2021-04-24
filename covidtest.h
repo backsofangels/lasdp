@@ -3,9 +3,20 @@
 #include "appointments.h"
 
 typedef struct CovidTest {
+    int identifier;
     char fiscalCode[17];
     int result;
 } CovidTest;
+
+typedef struct CovidTestListVariant {
+    int identifier;
+    char fiscalCode[17];
+    int result;
+    int testingDay;
+    struct CovidTestListVariant *next;
+} NodeTest;
+
+typedef struct CovidTestListVariant* PtrTest;
 
 /*
  *  Come mi scrivo i dati nello storico?
@@ -19,8 +30,14 @@ typedef struct CovidTest {
  */
 
 void performCovidTests(Day dailyAppointments);
-void printCovidTestsOnFile(CovidTest covidTest, int testingDay);
+void printCovidTestOnFile(CovidTest covidTest, int testingDay);
 int getLastDayOfTestHistory();
-
+PtrTest loadTestListFromFile();
+void printCovidTestsHistoryOnScreen(PtrTest head);
+PtrTest createTestNode();
+PtrTest insertNodeToEnd(PtrTest head, PtrTest node);
+void printCovidHistoryWrapper();
+void searchAndPrintTestById(int covidTestId);
+void printTestById(PtrTest head, int id);
 
 #endif

@@ -3,21 +3,29 @@
 #include <string.h>
 #include "covidtest.h"
 #include "appointments.h"
+#include "quarantinelog.h"
 
 void performCovidTests(Day dailyAppointments) {
     int lastTestingDay = getLastDayOfTestHistory();
 
-    if (lastTestingDay == -1) {
-        return;
-    }
-
     for (int i = 0; i < 3; i++) {
-        CovidTest test;
-        strcpy(test.fiscalCode, dailyAppointments.timeOfDay[i]->fiscalCodeCustomer);
-        if ((rand() % 100) > 10) {
-            test.result = 0;
-        } else test.result = 1;
-        printCovidTestOnFile(test, lastTestingDay);
+        while (dailyAppointments.timeOfDay[i] != NULL) {
+            CovidTest test;
+            test.identifier = dailyAppointments.timeOfDay[i]->reservationId;
+            strcpy(test.fiscalCode, dailyAppointments.timeOfDay[i]->fiscalCodeCustomer);
+            
+            if ((rand() % 100) > 40) {
+                test.result = 0;
+                removeFromQuarantine(test.fiscalCode);
+            } else {
+                test.result = 1;
+                if (isInQuarantine(test.fiscalCode) == 0) {
+                    addToQuarantine(test);
+                }
+            }
+            printCovidTestOnFile(test, lastTestingDay);
+            dailyAppointments.timeOfDay[i] = dailyAppointments.timeOfDay[i]->nextReservation;
+        }
     }
 }
 
@@ -29,7 +37,8 @@ void printCovidTestOnFile(CovidTest covidTest, int testingDay) {
         return;
     }
     
-    fprintf(file, "%s\t%d\t%d", covidTest.fiscalCode, covidTest.result, testingDay+1);
+    fprintf(file, "%d\t%s\t%d\t%d\n", covidTest.identifier, covidTest.fiscalCode, covidTest.result, testingDay+1);
+    fclose(file);
 }
 
 int getLastDayOfTestHistory() {
@@ -37,7 +46,7 @@ int getLastDayOfTestHistory() {
     file = fopen("covid-test-history.txt", "r");
 
     if (file == NULL) {
-        return -1;
+        return 0;
     }
 
     fseek(file, -1, SEEK_END);
@@ -61,4 +70,97 @@ int getLastDayOfTestHistory() {
     } else {
         return -1;
     }
+
+    fclose(file);
+}
+
+PtrTest loadTestListFromFile() {
+    FILE *file = NULL;
+    file = fopen("covid-test-history.txt", "r");
+
+    if (file == NULL) {
+        return NULL;
+    }
+
+    PtrTest listHead = NULL;
+    int checkFileEnd = 0;
+
+    do {
+        PtrTest newNode = createTestNode();
+        int identifier;
+        int result;
+        int testingDay;
+        checkFileEnd = fscanf(file, "%d\t%s\t%d\t%d\n", &identifier, newNode->fiscalCode, &result, &testingDay);
+        newNode->identifier = identifier;
+        newNode->result = result;
+        newNode->testingDay = testingDay;
+        listHead = insertNodeToEnd(listHead, newNode);
+    } while (checkFileEnd != EOF);
+
+    fclose(file);
+    
+    return listHead;
+}
+
+void printCovidTestsHistoryOnScreen(PtrTest head) {
+    if (head == NULL) {
+        printf("NULL\n");
+        return;
+    }
+
+    printf("Test identifier:%d\n", head->identifier);
+    printf("Fiscal Code: %s\n", head->fiscalCode);
+    if (head->result == 0) {
+        printf("Test outcome: negative\n");
+    } else printf("Test outcome: positive\n");
+    printf("Tested on day %d\n\n", head->testingDay);
+
+    printCovidTestsHistoryOnScreen(head->next);
+}
+
+PtrTest createTestNode() {
+    PtrTest newNode = NULL;
+    newNode = (PtrTest) calloc(1, sizeof(NodeTest));
+    newNode->next = NULL;
+    return newNode;
+}
+
+PtrTest insertNodeToEnd(PtrTest head, PtrTest node) {
+    if (head == NULL) {
+        return node;
+    } else {
+        head->next = insertNodeToEnd(head->next, node);
+    }
+    return head;
+}
+
+void printCovidHistoryWrapper() {
+    PtrTest head = NULL;
+    head = loadTestListFromFile();
+    printCovidTestsHistoryOnScreen(head);
+}
+
+void searchAndPrintTestById(int covidTestId) {
+    PtrTest head = NULL;
+    head = loadTestListFromFile();
+
+    printTestById(head, covidTestId);
+}
+
+void printTestById(PtrTest head, int covidTestId) {
+    if (head == NULL) {
+        return;
+    }
+
+    if (head->identifier == covidTestId) {
+        printf("Test identifier:%d\n", head->identifier);
+        printf("Fiscal Code: %s\n", head->fiscalCode);
+        if (head->result == 0) {
+            printf("Test outcome: negative\n");
+        } else printf("Test outcome: positive\n");
+        printf("Tested on day %d\n\n", head->testingDay);
+        return;
+    }
+
+    printTestById(head->next, covidTestId);
 }
