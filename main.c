@@ -4,6 +4,7 @@
 #include "seclib.h"
 #include "reservation.h"
 #include "appointments.h"
+#include "covidtest.h"
 
 int main() {
     srand(time(NULL));
@@ -20,6 +21,9 @@ int main() {
     //TODO: FIX if login mode is a character, it loops
     while (terminationFlag == 0) {
         int hasSymptoms = 0;
+
+        Day day = initializeDay();
+
         if (isCustomerOrCompany == 0) {
             printf("Please make your choice.\n Who are you?\n");
             printf("Insert 1 for customer\n");
@@ -78,8 +82,20 @@ int main() {
                 break;
 
                 case 6:
-                    //TODO: delete appointment
-                    printf("Delete appointment\n");
+                    day = disponiAppuntamentiNew();
+                    day = removeAppointmentById(day, 100);
+                    break;
+
+                case 20:
+                    searchAndPrintTestById(107);
+                    break;
+
+                case 21:
+                    day = disponiAppuntamentiNew();
+                    printAppointmentByFiscalCode(day, "salva");
+                    break;
+                    
+                default:
                     break;
             }
             break;
@@ -105,7 +121,7 @@ int main() {
 
                 case 25:    //Visualizza richieste di tamponi e fissa apputamenti
                     printMergedListsOnFileWrapper();
-                    Day day = disponiAppuntamentiNew();
+                    day = disponiAppuntamentiNew();
                     printDailyAppointmentsWrapper(1, day);
                     printf("\nBefore\n");
                     printDailyAppointmentsWrapper(0, day);
@@ -121,6 +137,15 @@ int main() {
                     break;
 
                 case 28: //Stampa appuntamenti del giorno (anche su file)
+                    break;
+
+                case 29:    //Simulazione test covid
+                    day = disponiAppuntamentiNew();
+                    performCovidTests(day);
+                    break;
+
+                case 30:    //Stampa storico test covid
+                    loadTestListFromFile();
                     break;
 
                 default:
