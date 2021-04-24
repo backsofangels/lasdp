@@ -75,12 +75,27 @@ void printDailyAppointmentsOnFile(Day day, int timeOfDay, FILE *file, int printO
 }
 
 Day removeAppointmentById(Day day, int appointmentId) {
-    int timeOfDay = 0;
+    int timeOfDayIndex = 0;
 
-    while (timeOfDay < 3) {
-        day.timeOfDay[timeOfDay] = deleteReservationNew(day.timeOfDay[timeOfDay], appointmentId);
-        timeOfDay++;
+    while (timeOfDayIndex < 3) {
+        day.timeOfDay[timeOfDayIndex] = deleteReservation(day.timeOfDay[timeOfDayIndex], appointmentId);
+        timeOfDayIndex++;
     }
 
     return day;
+}
+
+void printAppointmentByFiscalCode(Day day, char *fiscalCode) {
+    int index;
+
+    int found = 0;
+    for (index = 0; index < 3; index++) {
+        while(day.timeOfDay[index] != NULL && found == 0) {
+            if (strcmp(day.timeOfDay[index]->fiscalCodeCustomer, fiscalCode) == 0) {
+                printf("%d\n%s\n%d\n", day.timeOfDay[index]->reservationId, day.timeOfDay[index]->fiscalCodeCustomer, day.timeOfDay[index]->timeOfTheDay);
+                found = 1;
+            }
+            day.timeOfDay[index] = day.timeOfDay[index]->nextReservation;
+        }
+    }
 }
