@@ -10,6 +10,7 @@ void signUp() {
     printf("Insert your fiscal code.\n");
     scanf("%16s", p.fiscalCode); //16s to trim the lenght of the input string to the one accepted by the fiscalCode string
     fflush(stdin);
+    printf("Insert your password\n");
     scanf("%20s", p.password);
     printCredentials(p.fiscalCode, p.password);
     registrationOutcome = persistRegistration(p);
