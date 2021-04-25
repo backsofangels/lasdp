@@ -82,6 +82,38 @@ Day removeAppointmentById(Day day, int appointmentId) {
         timeOfDayIndex++;
     }
 
+    printDailyAppointmentsWrapper(1, day);
+
+    return day;
+}
+
+Day addAppointmentManually(Day day) {
+    char customerFiscalCode[17];
+    int timeOfDay;
+    int timeOfDayIndex = 0;
+    int inserted = 0;
+
+    printf("Inserisci il codice fiscale dell'utente\nper il quale vuoi inserire un appuntamento.\n");
+    scanf("%16s", customerFiscalCode);
+    printf("Inserisci il momento del giorno nel quale vuoi eseguire il tampone\n");
+    printf("\t1. Mattina\n\t2. Pomeriggio\n\t3. Sera\n");
+    scanf("%1d", timeOfDay);
+
+    PtrReservation reservation = createReservation(customerFiscalCode, timeOfDay);
+
+    while (timeOfDayIndex < 3 && inserted == 0) {
+        if (countElementsInQueue(day.timeOfDay[timeOfDayIndex]) != 2) {
+            day.timeOfDay[timeOfDayIndex] = insertReservationOnEnd(day.timeOfDay[timeOfDayIndex], reservation);
+            inserted = 1;
+        } else {
+            timeOfDayIndex++;
+        }
+    }
+
+    if (inserted != 0) {
+        printDailyAppointmentsWrapper(1, day);
+    }
+
     return day;
 }
 
