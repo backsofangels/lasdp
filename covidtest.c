@@ -108,12 +108,12 @@ void printCovidTestsHistoryOnScreen(PtrTest head) {
         return;
     }
 
-    printf("Test identifier:%d\n", head->identifier);
-    printf("Fiscal Code: %s\n", head->fiscalCode);
+    printf("Identificativo del test: %d\n", head->identifier);
+    printf("Codice fiscale: %s\n", head->fiscalCode);
     if (head->result == 0) {
-        printf("Test outcome: negative\n");
-    } else printf("Test outcome: positive\n");
-    printf("Tested on day %d\n\n", head->testingDay);
+        printf("Risultato del test: NEGATIVO\n");
+    } else printf("Risultato del test: POSITIVO\n");
+    printf("Testato nel giorno N. %d\n\n", head->testingDay);
 
     printCovidTestsHistoryOnScreen(head->next);
 }
@@ -153,12 +153,12 @@ void printTestById(PtrTest head, int covidTestId) {
     }
 
     if (head->identifier == covidTestId) {
-        printf("Test identifier:%d\n", head->identifier);
-        printf("Fiscal Code: %s\n", head->fiscalCode);
+        printf("Identificativo del test: %d\n", head->identifier);
+        printf("Codice fiscale: %s\n", head->fiscalCode);
         if (head->result == 0) {
-            printf("Test outcome: negative\n");
-        } else printf("Test outcome: positive\n");
-        printf("Tested on day %d\n\n", head->testingDay);
+            printf("Risultato del test: NEGATIVO\n");
+        } else printf("Risultato del test: POSITIVO\n");
+        printf("Testato nel giorno N. %d\n\n", head->testingDay);
         return;
     }
 
