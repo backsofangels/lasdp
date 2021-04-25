@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "ui.h"
 #include "reservation.h"
 #include "seclib.h"
@@ -60,17 +61,29 @@ void mainUiFlow() {
                 {
                     case 1:
                         //Registrazione
+                        if (isUserLoggedIn != -1) {
+                            printf("Hai già effettuato l'accesso, esci e poi registrati\n");
+                            break;
+                        }
                         signUp();
                         userInputStore = 0;
                         break;
                     
                     case 2:
-                        isUserLoggedIn = loginCustomer(sessionUserCode);
+                        if (isUserLoggedIn != 0) {
+                            isUserLoggedIn = loginCustomer(sessionUserCode);
+                        } else {
+                            printf("Già hai effettuato l'accesso, per entrare con una diversa utenza premi prima su \"8. Esci\"\n");
+                        }                        
                         userInputStore = 0;
                         break;
 
                     case 3:
                         //Prenotazione, assumo che l'utente deve essere loggato e non ha prenotato
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         if (hasUserReserved == 0 && isUserLoggedIn == 0) {
                             int isUserSyntomatic = 0;
 
@@ -101,6 +114,10 @@ void mainUiFlow() {
                         //Mostra prenotazioni
                         //Probabile baco, se esco con un utente e rientro con un altro vedo anche le altre prenotazioni
                         //Da testare
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         printf("Queste sono le tue prenotazioni odierne\n");
                         printReservations(symptomatics, NULL, 0);
                         printReservations(asymptomatics, NULL, 0);
@@ -109,12 +126,20 @@ void mainUiFlow() {
 
                     case 5:
                         //Mostra appuntamenti
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         printf("Questi sono i tuoi apputamenti odierni\n");
                         printAppointmentByFiscalCode(day, sessionUserCode);
                         userInputStore = 0;
                         break;
                     
                     case 6:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         if (isUserLoggedIn == 0) {
                             printf("Inserisci l'identificativo dell'appuntamento\nche vuoi cancellare.\n");
                             scanf("%d", &appointmentRemovalId);
@@ -124,6 +149,10 @@ void mainUiFlow() {
                         break;
 
                     case 7:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         //Visualizza risultato tampone
                         printf("Inserisci l'identificativo della prenotazione\n");
                         scanf("%d", &covidTestIdentifierForSearch);
@@ -138,10 +167,12 @@ void mainUiFlow() {
                         }
                         if (asymptomatics != NULL) {
                             saveReservationOnFile(asymptomatics, "asymptomatics.txt", "a");
-                        }
-                        emptyReservationListsFiles();                        
+                        }                     
                         userInputStore = 0;
                         branchBetweenPatientOrLab = 0;
+                        isUserLoggedIn = -1;
+                        hasUserReserved = 0;
+                        memset(sessionUserCode, ' ', 16);
                         printf("Arrivederci\n");
                         break;
 
@@ -171,16 +202,29 @@ void mainUiFlow() {
 
                 switch (userInputStore) {
                     case 1:
+                        if (isUserLoggedIn != -1) {
+                            printf("Non puoi registrarti se sei loggato, esci e poi rientra\n");
+                            break;
+                        }
                         signUpTestCenter();
                         userInputStore = 0;
                         break;
                     
                     case 2:
+                        if (isUserLoggedIn != -1) {
+                            printf("Hai già effettuato l'accesso\n");
+                            break;
+                        }
                         isUserLoggedIn = loginTestCenter();
                         userInputStore = 0;
                         break;
 
                     case 3:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
+                        printMergedListsOnFileWrapper();
                         day = disponiAppuntamentiNew();
                         printDailyAppointmentsWrapper(1, day);
                         emptyReservationListsFiles();
@@ -188,11 +232,19 @@ void mainUiFlow() {
                         break;
 
                     case 4:
-                        //TODO: Aggiunta appuntamento
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
+                        day = addAppointmentManually(day);
                         userInputStore = 0;
                         break;
 
                     case 5:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         printf("Inserisci l'id dell'appuntamento da eliminare\n");
                         scanf("%d", &appointmentRemovalId);
                         day = removeAppointmentById(day, appointmentRemovalId);
@@ -200,18 +252,31 @@ void mainUiFlow() {
                         break;
 
                     case 6:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         printDailyAppointmentsWrapper(0, day);
                         userInputStore = 0;
                         break;
 
                     case 7:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         performCovidTests(day);
                         emptyAppointmentsFile();
                         emptyReservationListsFiles();
+                        emptyCommonReservationList();
                         userInputStore = 0;
                         break;
 
                     case 8:
+                        if (isUserLoggedIn == -1) {
+                            printf("Effettua prima l'accesso e poi riprova\n");
+                            break;
+                        }
                         covidTests = loadTestListFromFile();
                         printCovidTestsHistoryOnScreen(covidTests);
                         userInputStore = 0;
@@ -231,6 +296,7 @@ void mainUiFlow() {
             
             case 3:
                 emptyAppointmentsFile();
+                emptyReservationListsFiles();
                 emptyReservationListsFiles();
                 programExitFlag = 1;
                 break;
