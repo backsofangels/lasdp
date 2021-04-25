@@ -68,7 +68,6 @@ void saveReservationOnFile(Reservation *headOfReservation, char *filename, char 
 }
 
 Reservation *searchReservationById(Reservation *headOfReservation, int reservationId) {
-    printf("searchReservationById()\n");
     if (headOfReservation == NULL) {
         return headOfReservation;
     } else if (headOfReservation->reservationId == reservationId) {
@@ -78,7 +77,6 @@ Reservation *searchReservationById(Reservation *headOfReservation, int reservati
 }
 
 Reservation *searchReservationByCustomer(Reservation *headOfReservation, char *customerFiscalCode) {
-    printf("searchReservationByCustomer()\n");
     if (headOfReservation == NULL) {
         return headOfReservation;
     }
@@ -89,19 +87,15 @@ Reservation *searchReservationByCustomer(Reservation *headOfReservation, char *c
 }
 
 Reservation *searchReservationByTimeOfDay (Reservation *headOfReservation, int timeOfTheDay) {
-    printf("searchReservationByTimeOfDay()\n");
     Reservation *localHead = headOfReservation;
     Reservation *results = NULL;
 
     while (localHead != NULL) {
-            printf("LocalHead not null. ");
             if (localHead->timeOfTheDay == timeOfTheDay) {
                 Reservation *temp = createReservation(localHead->fiscalCodeCustomer, timeOfTheDay);
                 temp->reservationId = localHead->reservationId;
-                printf("Found node. ");
                 results = insertReservationOnEnd(results, temp);
-                printf("Going next.\n");
-            } else printf ("Not found node. \n");
+            }
         localHead = localHead->nextReservation;
     }
 
