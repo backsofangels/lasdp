@@ -20,28 +20,23 @@ void signUp() {
     if (registrationOutcome == 0) {
         printf("Ti sei registrato con successo!\n");
     } else {
-        printf("Spiacenti, c'è stato un errore nella registrazione, riprovare\n");
+        printf("Spiacente, c'è stato un errore nella registrazione, riprova.\n");
     }
 }
 
 void signUpTestCenter() {
     TestCenter t;
     int registrationOutcome;
-    printf("Insert your identificative number\n");
+    printf("Inserisci il tuo codice operatore.\n");
     scanf("%5s", t.identificationNumber);
-    printf("Insert your password\n");
+    printf("Inserisci la tua password.\n");
     scanf("%20s", t.password);
     registrationOutcome = persistTestCenterRegistration(t);
     if (registrationOutcome == 0) {
-        printf("You are now registered\n");
+        printf("Ti sei registrato con successo!\n");
     } else {
-        printf("Error in registration\n");
+        printf("Spiacente, c'è stato un errore nella registrazione, riprova.\n");
     }
-}
-
-void printCredentials(char *fiscalCode, char *password) {
-    printf("This is the fiscal code: %s\n", fiscalCode);
-    printf("This is the password: %s\n", password);
 }
 
 int persistRegistration (Person p) {
@@ -76,13 +71,6 @@ int persistTestCenterRegistration (TestCenter t) {
  *  1:  wrong password
  *  2:  non-existent users
  */
-
-
-//TODO: ottimizzare questa roba
-// 0 = Login con successo
-// 1 = Password errata
-// 2 = Utente inesistente
-// -1 = errore in apertura file
 int loginCustomer(char *sessionUserCode) {
     FILE *customerDatabase = NULL;
     customerDatabase = fopen("customerRegistration.txt", "r");
@@ -120,64 +108,45 @@ int loginCustomer(char *sessionUserCode) {
     //Se arrivo qui significa che non ho mai trovato l'utente e quindi non è registrato
     printf("Molto probabilmente non sei registrato, per favore registrati\n");
     return 2;
-    
-    // if (file != NULL) {
-    //     char localFiscalCode[17];
-    //     char localPassword[21];
-    //     int eof = 1;
-    //     do {
-
-    //         eof = fscanf(file, "%s\t%s\n", localFiscalCode, localPassword);
-    //         printf("Fetched fiscal code: %s\n", localFiscalCode);
-    //         if (strcasecmp(localFiscalCode, fiscalCode) == 0) {
-    //             //fscanf(file, "%s\n", localPassword);
-    //             if (strcmp(password, localPassword) == 0) {
-    //                 printf("It's a match!\n");
-    //                 strcpy(sessionUserCode, fiscalCode);
-    //                 return 0;
-    //             } else {
-    //                 printf("not matching passwords\n");
-    //             }
-    //         }
-    //         printf("eof value: %d\n", eof);
-    //     }
-    //     while (strcasecmp(localFiscalCode, fiscalCode) != 0 && eof != -1); //controllare valore tornato da eof su windows
-    //     return 1;
-    // }
-    // return 2;
 }
 
 int loginTestCenter() {
-    char idNUmber[17];
-    char password[21]; //put to all 0 after readout
-    printf("Please enter your fiscal code\n");
-    scanf("%5s", idNUmber);
-    printf("Insert your password\n");
-    scanf("%20s", password);
-    FILE *file;
-    file = fopen("testcenterregistration.txt", "r");
-    if (file != NULL) {
-        char localIdNumber[6];
-        char localPassword[21];
-        int eof = 1;
-        do {
+    FILE *testCenterOperatorDatabase = NULL;
+    testCenterOperatorDatabase = fopen("testcenterregistration.txt", "r");
 
-            eof = fscanf(file, "%s\t%s\n", localIdNumber, localPassword);
-            printf("Fetched id number: %s\n", localIdNumber);
-            if (strcasecmp(localIdNumber, idNUmber) == 0) {
-                //fscanf(file, "%s\n", localPassword);
-                if (strcmp(password, localPassword) == 0) {
-                    printf("It's a match!\n");
-                    return 0;
-                } else {
-                    printf("not matching passwords\n");
-                    return 1;
-                }
-            }
-            printf("eof value: %d\n", eof);
-        }
-        while (strcasecmp(localIdNumber, idNUmber) != 0 && eof != -1); //controllare valore tornato da eof su windows
-
+    if (testCenterOperatorDatabase == NULL) {
+        return -1;
     }
-    return -1;
+
+    char userInputOperatorId[6];
+    char userInputPassword[21];
+
+    printf("Inserisci il tuo codice operatore\n");
+    scanf("%5s", userInputOperatorId);
+    printf("Inserisci la tua password\n");
+    scanf("%20s", userInputPassword);
+
+    int eofCheck = 0;
+    int codeCompare = 1;
+
+    do {
+        char fileOpCode[6];
+        char filePassword[21];
+
+        eofCheck = fscanf(testCenterOperatorDatabase, "%s\t%s\n", fileOpCode, filePassword);
+        codeCompare = strcasecmp(fileOpCode, userInputOperatorId);
+
+        if (codeCompare == 0) {
+            if (strcmp(userInputPassword, fileOpCode) == 0) {
+                printf("Login effettuato con successo\n");
+                return 0;
+            } else {
+                printf("Credenziali errate\n");
+                return 1;
+            }
+        }
+    } while (eofCheck != EOF && codeCompare != 0);
+
+    printf("Molto probabilmente non sei registrato\n");
+    return 2;
 }

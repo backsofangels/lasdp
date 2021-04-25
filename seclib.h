@@ -24,7 +24,4 @@ int persistTestCenterRegistration(TestCenter t);
 int loginCustomer(char *sessionFiscalCode);
 int loginTestCenter();
 
-//DEBUG ONLY
-void printCredentials(char *fiscalCode, char *password);
-
 #endif
