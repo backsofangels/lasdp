@@ -11,6 +11,12 @@ void emptyReservationListsFiles() {
     fclose(symptomatics);
 }
 
+void emptyCommonReservationList() {
+    FILE *reservations = NULL;
+    reservations = fopen("reservations.txt", "w");
+    fclose(reservations);
+}
+
 void emptyAppointmentsFile() {
     FILE *appointments = NULL;
 
