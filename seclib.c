@@ -4,6 +4,8 @@
 #include "seclib.h"
 #include "utils.h"
 
+
+//  Se non esistono i file di persistenza, li creo
 void initCredentialsDb() {
     FILE *testCenter = NULL;
     FILE *customer = NULL;
@@ -22,17 +24,16 @@ void initCredentialsDb() {
     }
 }
 
-//KNOWN ISSUE: Se inserisco un codice o password > 16/20 mi sfancula l'input
+//  Signup specifica per l'utente dato che contiene I/O specifico
 void signUp() {
     Person p;
     int registrationOutcome;
 
     printf("Ora effettuerai la registrazione, segui le istruzioni passo passo\n");
-    printf("\nInserisci il tuo codice fiscale (max. 16 caratteri)\n");
-    scanf("%16s", p.fiscalCode); //16s to trim the lenght of the input string to the one accepted by the fiscalCode string
+    printf("\nInserisci il tuo codice fiscale\n(max. 16 caratteri, eventuali eccessi verranno scartati a partire dal primo carattere)\n");
+    scanf("%16s", p.fiscalCode); //formattato a 16 per accomodare solo gli ultimi 16 caratteri inseriti dall'utente a schermo
     fflush(stdin);
-    printf("calling check\n");
-    if (checkIfCodeAlreadyPresentInDb(p.fiscalCode, 0) == 1) {
+    if (checkIfCodeAlreadyPresentInDb(p.fiscalCode, 0) == 1) {  // Check se l'utente è già registrato
         waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
         return;
     }
@@ -50,7 +51,7 @@ void signUp() {
 void signUpTestCenter() {
     TestCenter t;
     int registrationOutcome;
-    printf("Inserisci il tuo codice operatore. (Max 5 caratteri)\n");
+    printf("Inserisci il tuo codice operatore.\n(Max 5 caratteri, eventuali eccessi verranno scartati a partire dal primo carattere)\n");
     scanf("%5s", t.identificationNumber);
     if (checkIfCodeAlreadyPresentInDb(t.identificationNumber, 1) == 1) {
         waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
@@ -170,6 +171,7 @@ int loginCustomer(char *sessionUserCode) {
     return 2;
 }
 
+//  Retcode uguali a loginCustomer()
 int loginTestCenter() {
     FILE *testCenterOperatorDatabase = NULL;
     testCenterOperatorDatabase = fopen("testcenterregistration.txt", "r");

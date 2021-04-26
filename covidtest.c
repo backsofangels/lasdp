@@ -9,15 +9,13 @@
 void performCovidTests(Day dailyAppointments) {
     int lastTestingDay = getLastDayOfTestHistory();
 
-    printf("Got %d\n", lastTestingDay);
-
     for (int i = 0; i < 3; i++) {
         while (dailyAppointments.timeOfDay[i] != NULL) {
             CovidTest test;
             test.identifier = dailyAppointments.timeOfDay[i]->reservationId;
             strcpy(test.fiscalCode, dailyAppointments.timeOfDay[i]->fiscalCodeCustomer);
 
-            if ((rand() % 100) > 40) {
+            if ((rand() % 100) > 40) {  //40% è troppo?
                 test.result = 0;
                 removeFromQuarantine(test.fiscalCode);
             } else {
@@ -48,11 +46,11 @@ int getLastDayOfTestHistory() {
     FILE *file = NULL;
     file = fopen("covid-test-history.txt", "r");
 
-    if (file == NULL) {
+    if (file == NULL) { //Sanity check su file inesistente
         return 0;
     }
 
-    if (fgetc(file) == EOF) {
+    if (fgetc(file) == EOF) {   //Sanity check su file vuoto
         return 0;
     }
 
@@ -67,7 +65,7 @@ int getLastDayOfTestHistory() {
         if (scannedChar != '\t') {
             fseek(file, -2L, SEEK_CUR);
         }
-    } while (scannedChar != '\t');
+    } while (scannedChar != '\t');  //While necessario altrimenti non mi becco i giorni fatti da due cifre
 
     fscanf(file, "%d", &lastDay);
 
@@ -80,11 +78,11 @@ PtrTest loadTestListFromFile() {
     FILE *file = NULL;
     file = fopen("covid-test-history.txt", "r");
 
-    if (file == NULL) {
+    if (file == NULL) { //Sanity check su file inesistente
         return NULL;
     }
 
-    if (fgetc(file) == EOF) {
+    if (fgetc(file) == EOF) {   //Sanity check su file vuoto
         return NULL;
     }
 

@@ -120,6 +120,7 @@ void mainUiFlow() {
                             } else {
                                 printf("Inserisci il valore corretto per favore e presta bene attenzione ai sintomi\n");
                             }
+                            waitInputPrint("\nPremi un tasto per tornare al menu'...");
                         }
                         userInputStore = 0;
                         break;
@@ -190,7 +191,7 @@ void mainUiFlow() {
                         break;
 
                     case 8:
-                        //Uscita e ritorno al menù di scelta iniziale
+                        //Uscita e ritorno al menï¿½ di scelta iniziale
                         if (symptomatics != NULL) {
                             saveReservationOnFile(symptomatics, "symptomatics.txt", "a");
                         }
@@ -247,7 +248,7 @@ void mainUiFlow() {
 
                     case 2:
                         if (isUserLoggedIn == 0) {
-                            waitInputPrint("Hai già effettuato l'accesso\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("Hai giï¿½ effettuato l'accesso\nPremi un tasto per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }

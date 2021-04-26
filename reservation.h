@@ -7,23 +7,23 @@ typedef struct Reservation {
     int reservationId;
     char fiscalCodeCustomer[17];
     int timeOfTheDay; //1 for morning, 2 for afternoon, 3 for evening
-    struct Reservation *nextReservation;
+    struct Reservation* nextReservation;
 } Reservation;
 
 typedef struct Reservation* PtrReservation;
 
-Reservation *createReservation(char *customerFiscalCode, int timeOfTheDay);
-Reservation *performReservation(Reservation *r, char *customerFiscalCode);
-Reservation *insertReservationOnEnd(Reservation *head, Reservation *r);
-Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymptomatics);
-Reservation *deleteReservation(Reservation *r, int reservationId, int *hasCancelled);
+PtrReservation createReservation(char *customerFiscalCode, int timeOfTheDay);
+PtrReservation performReservation(PtrReservation r, char *customerFiscalCode);
+PtrReservation insertReservationOnEnd(PtrReservation head, PtrReservation r);
+PtrReservation mergeReservationLists(PtrReservation symptomatics, PtrReservation asymptomatics);
+PtrReservation deleteReservation(PtrReservation r, int reservationId, int *hasCancelled);
 int checkReservationAlreadyPerformed(char *fiscalCode);
-void saveReservationOnFile(Reservation *headOfReservation, char *filename, char *mode);
-void printReservations(Reservation *r, FILE *file, int printOnFile);
+void saveReservationOnFile(PtrReservation headOfReservation, char *filename, char *mode);
+void printReservations(PtrReservation r, FILE *file, int printOnFile);
 void printReservationByName(PtrReservation head, char *fiscalCode);
 void printSingleReservation(PtrReservation head);
-Reservation *searchReservationByTimeOfDay(Reservation *head, int timeOfTheDay);
+PtrReservation searchReservationByTimeOfDay(PtrReservation head, int timeOfTheDay);
 int searchReservationByFiscalCode(PtrReservation head, char *fiscalCode);
-Reservation *loadReservationsFromFile(char *filename);
+PtrReservation loadReservationsFromFile(char *filename);
 void printMergedListsOnFileWrapper();
 #endif

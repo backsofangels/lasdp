@@ -1,10 +1,8 @@
 #ifndef SECLIB_H
 #define SECLIB_H
 
-// Messi a 17/21 per considerare anche il carattere di terminazione nullo, in caso di tempo superstite, creare un
-// wrapper di fputc ed fgetc per esattamente la lunghezza definita in input del codice o della password o della stringa in generale letta da file
-// oppure smette con la terminazione scelta passata anch'essa come parametro.
-
+// Astrae il paziente, fiscalCode è a 17 per considerare stringa di lunghezza 16 più il carattere di terminazione.
+// Stesso ragionamento si applica a password e ad identificationNumber, che rappresenta la matricola di un operatore sanitario.
 typedef struct customer {
     char fiscalCode[17];
     char password[21];
