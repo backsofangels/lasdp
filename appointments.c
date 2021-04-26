@@ -3,6 +3,7 @@
 #include <string.h>
 #include "reservation.h"
 #include "appointments.h"
+#include "utils.h"
 
 //Init of day, use it whenever a new instance of the struct Day is needed
 Day initializeDay() {
@@ -14,7 +15,7 @@ Day initializeDay() {
 }
 
 //Automagically takes in reservations and creates appointments for the day
-Day disponiAppuntamentiNew() {
+Day disponiAppuntamentiNew(int *appointmentsDisposed) {
     Reservation *list = loadReservationsFromFile("reservations.txt");
     Day day = initializeDay();
 
@@ -43,6 +44,8 @@ Day disponiAppuntamentiNew() {
         }
         list = list->nextReservation;
     }
+
+    *appointmentsDisposed = 1;
     return day;
 }
 
@@ -76,14 +79,18 @@ void printDailyAppointmentsOnFile(Day day, int timeOfDay, FILE *file, int printO
 
 Day removeAppointmentById(Day day, int appointmentId) {
     int timeOfDayIndex = 0;
+    int hasCancelled = 0;
 
     while (timeOfDayIndex < 3) {
-        day.timeOfDay[timeOfDayIndex] = deleteReservation(day.timeOfDay[timeOfDayIndex], appointmentId);
+        day.timeOfDay[timeOfDayIndex] = deleteReservation(day.timeOfDay[timeOfDayIndex], appointmentId, &hasCancelled);
         timeOfDayIndex++;
     }
 
-    printDailyAppointmentsWrapper(1, day);
-
+    if (hasCancelled == 1) {
+        printDailyAppointmentsWrapper(1, day);
+    } else {
+        printf("L'appuntamento che hai scelto non esiste\n");
+    }
     return day;
 }
 
@@ -97,7 +104,7 @@ Day addAppointmentManually(Day day) {
     scanf("%16s", customerFiscalCode);
     printf("Inserisci il momento del giorno nel quale vuoi eseguire il tampone\n");
     printf("\t1. Mattina\n\t2. Pomeriggio\n\t3. Sera\n");
-    scanf("%1d", timeOfDay);
+    timeOfDay = sanitizeUserInput(4);
 
     PtrReservation reservation = createReservation(customerFiscalCode, timeOfDay);
 
@@ -122,9 +129,22 @@ void printAppointmentByFiscalCode(Day day, char *fiscalCode) {
 
     int found = 0;
     for (index = 0; index < 3; index++) {
+        switch (index) {
+        case 0:
+            printf("Appuntamenti della mattina: \n");
+            break;
+        case 1:
+            printf("Appuntamenti del pomeriggio: \n");
+            break;
+        case 2:
+            printf("Appuntamenti della sera: \n");
+            break;
+        default:
+            break;
+        }
         while(day.timeOfDay[index] != NULL && found == 0) {
             if (strcmp(day.timeOfDay[index]->fiscalCodeCustomer, fiscalCode) == 0) {
-                printf("%d\n%s\n%d\n", day.timeOfDay[index]->reservationId, day.timeOfDay[index]->fiscalCodeCustomer, day.timeOfDay[index]->timeOfTheDay);
+                printSingleReservation(day.timeOfDay[index]);
                 found = 1;
             }
             day.timeOfDay[index] = day.timeOfDay[index]->nextReservation;
