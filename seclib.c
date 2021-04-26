@@ -1,7 +1,26 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"seclib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "seclib.h"
+#include "utils.h"
+
+void initCredentialsDb() {
+    FILE *testCenter = NULL;
+    FILE *customer = NULL;
+
+    customer = fopen("customerRegistration.txt", "r");
+    testCenter = fopen("testcenterregistration.txt", "r");
+
+    if (customer == NULL) {
+        customer = fopen("customerRegistration.txt", "w");
+        fclose(customer);
+    }
+
+    if (testCenter == NULL) {
+        testCenter = fopen("testcenterregistration.txt", "w");
+        fclose(testCenter);
+    }
+}
 
 //KNOWN ISSUE: Se inserisco un codice o password > 16/20 mi sfancula l'input
 void signUp() {
@@ -9,34 +28,69 @@ void signUp() {
     int registrationOutcome;
 
     printf("Ora effettuerai la registrazione, segui le istruzioni passo passo\n");
-    printf("Inserisci il tuo codice fiscale\n");
+    printf("\nInserisci il tuo codice fiscale (max. 16 caratteri)\n");
     scanf("%16s", p.fiscalCode); //16s to trim the lenght of the input string to the one accepted by the fiscalCode string
     fflush(stdin);
-    printf("Insert your password\n");
+    printf("calling check\n");
+    if (checkIfCodeAlreadyPresentInDb(p.fiscalCode, 0) == 1) {
+        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
+        return;
+    }
+    printf("\nInserisci la password\n");
     scanf("%20s", p.password);
-
-
+    fflush(stdin);
     registrationOutcome = persistRegistration(p);
     if (registrationOutcome == 0) {
-        printf("Ti sei registrato con successo!\n");
+        waitInputPrint("\nTi sei registrato con successo!\nPremi un tasto per tornare al menu'.");
     } else {
-        printf("Spiacente, c'è stato un errore nella registrazione, riprova.\n");
+        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi un tasto per tornare al menu'.");
     }
 }
 
 void signUpTestCenter() {
     TestCenter t;
     int registrationOutcome;
-    printf("Inserisci il tuo codice operatore.\n");
+    printf("Inserisci il tuo codice operatore. (Max 5 caratteri)\n");
     scanf("%5s", t.identificationNumber);
+    if (checkIfCodeAlreadyPresentInDb(t.identificationNumber, 1) == 1) {
+        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
+        return;
+    }
+    fflush(stdin);
     printf("Inserisci la tua password.\n");
     scanf("%20s", t.password);
+    fflush(stdin);
     registrationOutcome = persistTestCenterRegistration(t);
     if (registrationOutcome == 0) {
-        printf("Ti sei registrato con successo!\n");
+        waitInputPrint("Ti sei registrato con successo!\nPremi un tasto per tornare al menu'.");
     } else {
-        printf("Spiacente, c'è stato un errore nella registrazione, riprova.\n");
+        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi un tasto per tornare al menu'.");
     }
+}
+
+// customerOrTestCenter = 0 fa il controllo in customer, 1 in test center
+int checkIfCodeAlreadyPresentInDb(char *codeToCheck, int customerOrTestCenter) {
+    FILE *database = NULL;
+    int isPresent = 0;
+
+    if (customerOrTestCenter == 0) {
+        database = fopen("customerRegistration.txt", "r");
+    } else if (customerOrTestCenter == 1) {
+        database = fopen("testcenterregistration.txt", "r");
+    }
+
+    while (feof(database) == 0 && isPresent == 0) {
+        char code[17];
+        char pass[21];
+        fscanf(database, "%s\t%s\n", code, pass);
+        if (strcasecmp(code, codeToCheck) == 0) {
+            isPresent = 1;
+        } else {
+        }
+    }
+
+    fclose(database);
+    return isPresent;
 }
 
 int persistRegistration (Person p) {
@@ -83,10 +137,12 @@ int loginCustomer(char *sessionUserCode) {
     //Local input of user datas for login
     char userInputFiscalCode[17];
     char userInputPassword[21];
-    printf("Inserisci il tuo codice fiscale\n");
+    printf("\nInserisci il tuo codice fiscale\n");
     scanf("%16s", userInputFiscalCode);
-    printf("Inserisci la tua password\n");
+    fflush(stdin);
+    printf("\nInserisci la tua password\n");
     scanf("%20s", userInputPassword);
+    fflush(stdin);
 
     int eofCheck = 0;
     int fcCompare = 1;
@@ -99,14 +155,18 @@ int loginCustomer(char *sessionUserCode) {
         if (fcCompare == 0) {
             if (strcmp(userInputPassword, filePassword) == 0) {
                 strcpy(sessionUserCode, fileFiscalCode);
-                printf("Login effettuato con successo!\n");
+                waitInputPrint("\nLogin effettuato con successo!\nPremi INVIO per continuare");
                 return 0;
-            } else return 1;
+            } else {
+                waitInputPrint("\n\nCredenziali errate\n\n\tPremi un tasto per tornare al menu'");
+                return 1;
+            }
+
         }
     } while (fcCompare != 0 && eofCheck != EOF);
-    
+
     //Se arrivo qui significa che non ho mai trovato l'utente e quindi non è registrato
-    printf("Molto probabilmente non sei registrato, per favore registrati\n");
+    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi un tasto per tornare al menu'");
     return 2;
 }
 
@@ -123,8 +183,10 @@ int loginTestCenter() {
 
     printf("Inserisci il tuo codice operatore\n");
     scanf("%5s", userInputOperatorId);
+    fflush(stdin);
     printf("Inserisci la tua password\n");
     scanf("%20s", userInputPassword);
+    fflush(stdin);
 
     int eofCheck = 0;
     int codeCompare = 1;
@@ -137,16 +199,16 @@ int loginTestCenter() {
         codeCompare = strcasecmp(fileOpCode, userInputOperatorId);
 
         if (codeCompare == 0) {
-            if (strcmp(userInputPassword, fileOpCode) == 0) {
-                printf("Login effettuato con successo\n");
+            if (strcmp(userInputPassword, filePassword) == 0) {
+                waitInputPrint("\n\nLogin effettuato con successo\n\n\tPremi un tasto per tornare al menu'");
                 return 0;
             } else {
-                printf("Credenziali errate\n");
+                waitInputPrint("\n\nCredenziali errate\n\n\tPremi un tasto per tornare al menu'");
                 return 1;
             }
         }
     } while (eofCheck != EOF && codeCompare != 0);
 
-    printf("Molto probabilmente non sei registrato\n");
+    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi un tasto per tornare al menu'");
     return 2;
 }
