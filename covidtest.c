@@ -4,16 +4,19 @@
 #include "covidtest.h"
 #include "appointments.h"
 #include "quarantinelog.h"
+#include "utils.h"
 
 void performCovidTests(Day dailyAppointments) {
     int lastTestingDay = getLastDayOfTestHistory();
+
+    printf("Got %d\n", lastTestingDay);
 
     for (int i = 0; i < 3; i++) {
         while (dailyAppointments.timeOfDay[i] != NULL) {
             CovidTest test;
             test.identifier = dailyAppointments.timeOfDay[i]->reservationId;
             strcpy(test.fiscalCode, dailyAppointments.timeOfDay[i]->fiscalCodeCustomer);
-            
+
             if ((rand() % 100) > 40) {
                 test.result = 0;
                 removeFromQuarantine(test.fiscalCode);
@@ -36,7 +39,7 @@ void printCovidTestOnFile(CovidTest covidTest, int testingDay) {
     if (file == NULL) {
         return;
     }
-    
+
     fprintf(file, "%d\t%s\t%d\t%d\n", covidTest.identifier, covidTest.fiscalCode, covidTest.result, testingDay+1);
     fclose(file);
 }
@@ -49,29 +52,28 @@ int getLastDayOfTestHistory() {
         return 0;
     }
 
-    fseek(file, -1, SEEK_END);
+    if (fgetc(file) == EOF) {
+        return 0;
+    }
 
-    int foundLastDay = 0;
+    int lastDay, scan;
+    char scannedChar;
 
-    while (foundLastDay != 1) {
-        fseek(file, -1, SEEK_CUR);
-        char scannedChar = fgetc(file);
-        if (scannedChar == '\t') {
-            foundLastDay = 1;
-        } else {
-            fseek(file, -1, SEEK_CUR);
+    fseek(file, -3L, SEEK_END);  //Vado alla fine ma torno indietro di 3 per levarmi da mezzo lo \n che vale 2
+
+    do {
+        scan = fgetc(file);
+        scannedChar = (char) scan;
+        if (scannedChar != '\t') {
+            fseek(file, -2L, SEEK_CUR);
         }
-    }
+    } while (scannedChar != '\t');
 
-    if (foundLastDay == 1) {
-        int lastDay;
-        fscanf(file, "%d", &lastDay);
-        return lastDay;
-    } else {
-        return -1;
-    }
+    fscanf(file, "%d", &lastDay);
 
     fclose(file);
+
+    return lastDay;
 }
 
 PtrTest loadTestListFromFile() {
@@ -82,29 +84,33 @@ PtrTest loadTestListFromFile() {
         return NULL;
     }
 
-    PtrTest listHead = NULL;
-    int checkFileEnd = 0;
+    if (fgetc(file) == EOF) {
+        return NULL;
+    }
 
-    do {
+    fseek(file, 0, SEEK_SET);
+
+    PtrTest listHead = NULL;
+
+    while(feof(file) == 0) {
         PtrTest newNode = createTestNode();
         int identifier;
         int result;
         int testingDay;
-        checkFileEnd = fscanf(file, "%d\t%s\t%d\t%d\n", &identifier, newNode->fiscalCode, &result, &testingDay);
+        fscanf(file, "%d\t%s\t%d\t%d\n", &identifier, newNode->fiscalCode, &result, &testingDay);
         newNode->identifier = identifier;
         newNode->result = result;
         newNode->testingDay = testingDay;
         listHead = insertNodeToEnd(listHead, newNode);
-    } while (checkFileEnd != EOF);
+    }
 
     fclose(file);
-    
+
     return listHead;
 }
 
 void printCovidTestsHistoryOnScreen(PtrTest head) {
     if (head == NULL) {
-        printf("NULL\n");
         return;
     }
 
