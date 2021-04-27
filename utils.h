@@ -8,5 +8,6 @@ void initDatabase();
 void clearScreen();
 void waitInputPrint(char *message);
 int sanitizeUserInput(int maxUserInput);
+void flushInput();
 
 #endif

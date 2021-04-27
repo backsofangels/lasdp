@@ -8,19 +8,20 @@
 #include "utils.h"
 
 void mainUiFlow() {
-    // Variable declarations used in the UI flow
+    //  Variable declarations used in the UI flow
     int programExitFlag = 0;
     int branchBetweenPatientOrLab = 0;
     int isUserLoggedIn = -1;
     int userInputStore = 0;
 
-    //Variabili specifiche per il flusso utente
+    //  Variabili specifiche per il flusso utente
     int hasUserReserved = 0;
     int appointmentRemovalId = 0;
     int appointmentsDispatched = 0;
+    int testsHaveBeenProcessed = 0;
 
 
-    //Variable useful to store "session" of user
+    //  Lo uso come token di sessione per memorizzare il codice fiscale, tipo un JWT ma più basilare
     char sessionUserCode[17];
 
     // Variables useful on a functional level (I/O of functions)
@@ -32,10 +33,10 @@ void mainUiFlow() {
     initDatabase();
 
     while (programExitFlag == 0) {
-        //Local variables only for data feeding purposes
+        //  Local variables only for data feeding purposes
         int covidTestIdentifierForSearch = 0;
 
-        //Flow different for patient or lab
+        //  Brancha nel flow giusto
         if (branchBetweenPatientOrLab == 0) {
             clearScreen();
             printf("Ciao, scegli il tuo ruolo\n");
@@ -43,11 +44,11 @@ void mainUiFlow() {
             branchBetweenPatientOrLab = sanitizeUserInput(4);
         }
 
-        //Branching now
+        //  Branch qui
         switch (branchBetweenPatientOrLab)
         {
             case 1:
-                //Patient flow, unwinding specific branches now
+                //  Flusso specifico paziente
                 if (userInputStore == 0) {
                     clearScreen();
                     printf("Effettua la tua scelta\n");
@@ -57,7 +58,7 @@ void mainUiFlow() {
                         printf("3. Effettua una prenotazione\n");
                         printf("4. Mostra le tue prenotazioni\n");
                         printf("5. Mostra i tuoi appuntamenti\n");
-                        printf("6. Cancella un appuntamento\n");
+                        printf("6. Cancella un appuntamento fissato\n");
                         printf("7. Visualizza i risultati del tampone\n");
                     }
                     printf("8. Esci\n");
@@ -67,9 +68,10 @@ void mainUiFlow() {
                 switch (userInputStore)
                 {
                     case 1:
-                        //Registrazione
-                        if (isUserLoggedIn != -1) {
+                        //  Registrazione
+                        if (isUserLoggedIn == 0) {
                             printf("Hai gia' effettuato l'accesso, esci e poi registrati\n");
+                            waitInputPrint("Premi ENTER per tornare al menu'.");
                             userInputStore = 0;
                             break;
                         }
@@ -79,29 +81,33 @@ void mainUiFlow() {
                         break;
 
                     case 2:
+                        //  Login
                         if (isUserLoggedIn != 0) {
                             clearScreen();
+                            //  Imposto il token di sessione
                             isUserLoggedIn = loginCustomer(sessionUserCode);
                         } else {
                             printf("Gia' hai effettuato l'accesso, per entrare con una diversa utenza premi prima su \"8. Esci\"\n");
-                            waitInputPrint("Premi un tasto per tornare al menu'...");
+                            waitInputPrint("Premi ENTER per tornare al menu'...");
                         }
                         userInputStore = 0;
                         break;
 
                     case 3:
-                        //Prenotazione, assumo che l'utente deve essere loggato e non ha prenotato
+                        //  Prenotazione, assumo che l'utente deve essere loggato e non ha prenotato
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
                         }
+                        //  Check se ha già prenotato
                         if (hasUserReserved == 1 || checkReservationAlreadyPerformed(sessionUserCode) == 1) {
                             clearScreen();
                             printf("Puoi effettuare una sola prenotazione al giorno.\n");
-                            waitInputPrint("Premi un tasto per tornare al menu' principale...");
+                            waitInputPrint("Premi ENTER per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }
+                        //  Se loggato, unwinding dell'IO della prenotazione
                         if (isUserLoggedIn == 0) {
                             int isUserSyntomatic = 0;
                             clearScreen();
@@ -120,7 +126,7 @@ void mainUiFlow() {
                             } else {
                                 printf("Inserisci il valore corretto per favore e presta bene attenzione ai sintomi\n");
                             }
-                            waitInputPrint("\nPremi un tasto per tornare al menu'...");
+                            waitInputPrint("Ricorda il numero della prenotazione, ti servira' in seguito!\nPremi ENTER per tornare al menu'...");
                         }
                         userInputStore = 0;
                         break;
@@ -136,10 +142,10 @@ void mainUiFlow() {
                             printf("Queste sono le tue prenotazioni odierne\n");
                             printReservationByName(symptomatics, sessionUserCode);
                             printReservationByName(asymptomatics, sessionUserCode);
-                            waitInputPrint("\n\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("\n\nPremi ENTER per tornare al menu'");
                         } else {
                             clearScreen();
-                            waitInputPrint("Ancora non hai effettuato prenotazioni per oggi.\nPremi un tasto per tornare al menu'.");
+                            waitInputPrint("Ancora non hai effettuato prenotazioni per oggi.\nPremi ENTER per tornare al menu'.");
 
                         }
                         userInputStore = 0;
@@ -154,11 +160,12 @@ void mainUiFlow() {
                         clearScreen();
                         printf("\n\nQuesti sono i tuoi apputamenti odierni\nSe non ne vedi, il centro potrebbe ancora non averli confermati\n\n");
                         printAppointmentByFiscalCode(day, sessionUserCode);
-                        waitInputPrint("\n\nPremi un tasto per tornare al menu'...");
+                        waitInputPrint("\n\nPremi ENTER per tornare al menu'...");
                         userInputStore = 0;
                         break;
 
                     case 6:
+                        //  Cancellazoine, chiama anche la stampa per chiarezza
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
@@ -172,7 +179,7 @@ void mainUiFlow() {
                             printf("\n");
                         }
                         day = removeAppointmentById(day, appointmentRemovalId);
-                        waitInputPrint("Premi un tasto per tornare al menu'");
+                        waitInputPrint("Premi ENTER per tornare al menu'");
                         userInputStore = 0;
                         break;
 
@@ -182,16 +189,16 @@ void mainUiFlow() {
                             break;
                         }
                         clearScreen();
-                        //Visualizza risultato tampone
+                        //  Visualizza risultato tampone
                         printf("Inserisci l'identificativo della prenotazione\n");
                         covidTestIdentifierForSearch = sanitizeUserInput(200);
                         searchAndPrintTestById(covidTestIdentifierForSearch);
-                        waitInputPrint("Premi un tasto per tornare al menu'...");
+                        waitInputPrint("Premi ENTER per tornare al menu'...");
                         userInputStore = 0;
                         break;
 
                     case 8:
-                        //Uscita e ritorno al men� di scelta iniziale
+                        //  Uscita e ritorno al menù di scelta iniziale
                         if (symptomatics != NULL) {
                             saveReservationOnFile(symptomatics, "symptomatics.txt", "a");
                         }
@@ -199,12 +206,16 @@ void mainUiFlow() {
                             saveReservationOnFile(asymptomatics, "asymptomatics.txt", "a");
                         }
                         clearScreen();
+                        //  Resetto tutte le variabili in caso di immediato ritorno nel flow
                         userInputStore = 0;
                         branchBetweenPatientOrLab = 0;
                         isUserLoggedIn = -1;
                         hasUserReserved = 0;
                         memset(sessionUserCode, ' ', 16);
-                        waitInputPrint("Arrivederci\nPremi un tasto per tornare al menu' principale...");
+                        //  Svuoto le liste altrimenti si tiene in pancia anche gli appuntamenti precedenti di TUTTI
+                        symptomatics = emptyReservationList(symptomatics);
+                        asymptomatics = emptyReservationList(asymptomatics);
+                        waitInputPrint("Arrivederci\nPremi ENTER per tornare al menu' principale...");
                         break;
 
                     default:
@@ -236,8 +247,9 @@ void mainUiFlow() {
 
                 switch (userInputStore) {
                     case 1:
+                        //  Registrazione
                         if (isUserLoggedIn == 0) {
-                            waitInputPrint("Non puoi registrarti se sei loggato\nPremi un tasto per continuare");
+                            waitInputPrint("Non puoi registrarti se sei loggato\nPremi ENTER per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }
@@ -247,8 +259,9 @@ void mainUiFlow() {
                         break;
 
                     case 2:
+                        //  Login
                         if (isUserLoggedIn == 0) {
-                            waitInputPrint("Hai gi� effettuato l'accesso\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("Hai gia' effettuato l'accesso\nPremi ENTER per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }
@@ -258,13 +271,14 @@ void mainUiFlow() {
                         break;
 
                     case 3:
+                        //  Dispone gli appuntamenti automagicamente
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
                         }
                         if (appointmentsDispatched == 1) {
                             clearScreen();
-                            waitInputPrint("Gli appuntamenti per il giorno gia' sono stati programmati\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("Gli appuntamenti per il giorno gia' sono stati programmati\nPremi ENTER per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }
@@ -274,25 +288,28 @@ void mainUiFlow() {
                         printDailyAppointmentsWrapper(1, day);
                         emptyReservationListsFiles();
                         if (appointmentsDispatched == 1) {
-                            waitInputPrint("I tuoi appuntamenti sono stati programmati per il giorno\nPremi un tasto per tornare al menu' e visualizzarli");
+                            waitInputPrint("I tuoi appuntamenti sono stati programmati per il giorno\nPremi ENTER per tornare al menu' e visualizzarli");
                         } else {
-                            waitInputPrint("Non c'erano prenotazioni in coda, riprova piu' tardi\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("Non c'erano prenotazioni in coda, riprova piu' tardi\nPremi ENTER per tornare al menu'");
                         }
                         userInputStore = 0;
                         break;
 
                     case 4:
+                        //  Aggiunta manuale appuntamento, viene messo SEMPRE in coda a quelli fatti "online"
+                        //  che hanon la precedenza su quelli manuali
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
                         }
                         clearScreen();
                         day = addAppointmentManually(day);
-                        waitInputPrint("Premi un tasto per tornare al menu'...");
+                        waitInputPrint("Premi ENTER per tornare al menu'");
                         userInputStore = 0;
                         break;
 
                     case 5:
+                        //  Eliminazione appuntamento
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
@@ -303,22 +320,24 @@ void mainUiFlow() {
                         printf("Inserisci l'id dell'appuntamento da eliminare\n");
                         appointmentRemovalId = sanitizeUserInput(200);
                         day = removeAppointmentById(day, appointmentRemovalId);
-                        waitInputPrint("Premi un tasto per tornare al menu'");
+                        waitInputPrint("Premi ENTER per tornare al menu'");
                         userInputStore = 0;
                         break;
 
                     case 6:
+                        //  Mostra appuntamenti
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
                         }
                         clearScreen();
                         printDailyAppointmentsWrapper(0, day);
-                        waitInputPrint("Premi un tasto per tornare al menu'");
+                        waitInputPrint("Premi ENTER per tornare al menu'");
                         userInputStore = 0;
                         break;
 
                     case 7:
+                        //  Effettua simulazione tamponi con conseguente stampa in log quarantena e test covid
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
@@ -329,11 +348,13 @@ void mainUiFlow() {
                         emptyReservationListsFiles();
                         emptyCommonReservationList();
                         day = initializeDay();
-                        waitInputPrint("I tamponi sono stati effettuati e processati\nVai al menu' per visualizzare lo storico");
+                        testsHaveBeenProcessed = 1;
+                        waitInputPrint("I tamponi sono stati effettuati e processati\nPremi ENTER per tornare al menu' e per visualizzare lo storico");
                         userInputStore = 0;
                         break;
 
                     case 8:
+                        //  Storico di TUTTI i tamponi
                         if (isUserLoggedIn == -1) {
                             userInputStore = 0;
                             break;
@@ -342,17 +363,18 @@ void mainUiFlow() {
                         printf("\nOra verra' mostrato lo storico dei tamponi COVID\n");
                         covidTests = loadTestListFromFile();
                         if (covidTests == NULL) {
-                            waitInputPrint("Ancora non ci sono tamponi nello storico\nPremi un tasto per tornare al menu'");
+                            waitInputPrint("Ancora non ci sono tamponi nello storico\nPremi ENTER per tornare al menu'");
                             userInputStore = 0;
                             break;
                         }
                         printCovidTestsHistoryOnScreen(covidTests);
-                        waitInputPrint("\n\nPremi un tasto per tornare al menu'...");
+                        waitInputPrint("\n\nPremi ENTER per tornare al menu'");
                         userInputStore = 0;
                         break;
 
                     case 9:
-                        waitInputPrint("Arrivederci\nPremi un tasto per tornare al menu' principale.");
+                        //  Uscita
+                        waitInputPrint("Arrivederci\nPremi ENTER per tornare al menu' principale");
                         isUserLoggedIn = -1;
                         userInputStore = 0;
                         branchBetweenPatientOrLab = 0;
@@ -365,6 +387,14 @@ void mainUiFlow() {
                 break;
 
             case 3:
+                //  Uscita da programma, distruggo tutto
+                if (testsHaveBeenProcessed == 0) {
+                    performCovidTests(day);
+                    emptyAppointmentsFile();
+                    emptyReservationListsFiles();
+                    emptyCommonReservationList();
+                    day = initializeDay();
+                }
                 emptyAppointmentsFile();
                 emptyReservationListsFiles();
                 emptyReservationListsFiles();

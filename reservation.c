@@ -24,7 +24,7 @@ Reservation *performReservation(Reservation *headOfReservation, char *fiscalCode
     Reservation *r = createReservation(fiscalCode, timeOfTheDay);
     printf("\nHai creato la prenotazione, questi sono i dati\n");
     printSingleReservation(r);
-    fflush(stdin);
+    flushInput();
     return insertReservationOnEnd(headOfReservation, r);
 }
 
@@ -82,10 +82,10 @@ Reservation *mergeReservationLists(Reservation *symptomatics, Reservation *asymp
  *  headOfReservation -> lista di prenotazioni da stampare
  *  filename -> nome del file, può essere NULL
  *  mode -> modalità di apertura del file, può essere NULL
- * 
+ *
  *  Non ha bisogno di checkare la null-safety di filename e mode in quanto vengono utilizzati ad uno scopo ben preciso e se
  *  messi a null, significa che non se ne ha bisogno
- * 
+ *
  */
 void saveReservationOnFile(Reservation *headOfReservation, char *filename, char *mode) {
     FILE *file = NULL;
@@ -217,4 +217,14 @@ void printMergedListsOnFileWrapper() {
     asymptReservations = loadReservationsFromFile("asymptomatics.txt");
     Reservation *merged = mergeReservationLists(symptReservations, asymptReservations);
     saveReservationOnFile(merged, "reservations.txt", "w");
+}
+
+PtrReservation emptyReservationList(PtrReservation reservation) {
+    if (reservation == NULL) {
+        return NULL;
+    }
+    PtrReservation tmp = reservation->nextReservation;
+    reservation->nextReservation = NULL;
+    free(reservation);
+    return emptyReservationList(tmp);
 }

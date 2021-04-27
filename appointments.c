@@ -119,6 +119,8 @@ Day addAppointmentManually(Day day) {
 
     if (inserted != 0) {
         printDailyAppointmentsWrapper(1, day);
+    } else {
+        printf("Non c'era spazio oggi per inserire l'appuntamento.\n");
     }
 
     return day;

@@ -104,28 +104,36 @@ void clearScreen() {
 
 void waitInputPrint(char *message) {
     printf("%s\n", message);
-    fflush(stdin);
+    flushInput();
     getchar();
-    fflush(stdin);
+    flushInput();
 }
 
 int sanitizeUserInput(int maxUserInput) {
     int temporaryInput, userchoice = -1;
 
-    fflush(stdin);
+    flushInput();
     if (scanf("%d", &temporaryInput) == 1) {
-        fflush(stdin);
+        flushInput();
         if (temporaryInput > 0 && temporaryInput < maxUserInput) {
             userchoice = temporaryInput;
         } else {
             printf("Scelta non corretta, riprovare\n");
-            waitInputPrint("Premi INVIO per tornare al menu'");
+            waitInputPrint("Premi ENTER per tornare al menu'");
         }
     } else {
-        fflush(stdin);
+        flushInput();
         printf("Scelta non corretta, riprovare\n");
-        waitInputPrint("Premi INVIO per tornare");
+        waitInputPrint("Premi ENTER per tornare al menu'");
     }
     return userchoice;
+}
+
+void flushInput() {
+    int c;
+
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
 }
 

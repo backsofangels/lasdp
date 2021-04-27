@@ -32,19 +32,19 @@ void signUp() {
     printf("Ora effettuerai la registrazione, segui le istruzioni passo passo\n");
     printf("\nInserisci il tuo codice fiscale\n(max. 16 caratteri, eventuali eccessi verranno scartati a partire dal primo carattere)\n");
     scanf("%16s", p.fiscalCode); //formattato a 16 per accomodare solo gli ultimi 16 caratteri inseriti dall'utente a schermo
-    fflush(stdin);
+    flushInput();
     if (checkIfCodeAlreadyPresentInDb(p.fiscalCode, 0) == 1) {  // Check se l'utente è già registrato
-        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
+        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi ENTER per tornare al menu'");
         return;
     }
     printf("\nInserisci la password\n");
     scanf("%20s", p.password);
-    fflush(stdin);
+    flushInput();
     registrationOutcome = persistRegistration(p);
     if (registrationOutcome == 0) {
-        waitInputPrint("\nTi sei registrato con successo!\nPremi un tasto per tornare al menu'.");
+        waitInputPrint("\nTi sei registrato con successo!\nPremi ENTER per tornare al menu'.");
     } else {
-        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi un tasto per tornare al menu'.");
+        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi ENTER per tornare al menu'.");
     }
 }
 
@@ -54,18 +54,18 @@ void signUpTestCenter() {
     printf("Inserisci il tuo codice operatore.\n(Max 5 caratteri, eventuali eccessi verranno scartati a partire dal primo carattere)\n");
     scanf("%5s", t.identificationNumber);
     if (checkIfCodeAlreadyPresentInDb(t.identificationNumber, 1) == 1) {
-        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi un tasto per tornare al menu'");
+        waitInputPrint("\nSei gia' registrato, effettua il login\nPremi ENTER per tornare al menu'");
         return;
     }
-    fflush(stdin);
+    flushInput();
     printf("Inserisci la tua password.\n");
     scanf("%20s", t.password);
-    fflush(stdin);
+    flushInput();
     registrationOutcome = persistTestCenterRegistration(t);
     if (registrationOutcome == 0) {
-        waitInputPrint("Ti sei registrato con successo!\nPremi un tasto per tornare al menu'.");
+        waitInputPrint("Ti sei registrato con successo!\nPremi ENTER per tornare al menu'.");
     } else {
-        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi un tasto per tornare al menu'.");
+        waitInputPrint("\nSpiacente, c'è stato un errore nella registrazione, riprova.\nPremi ENTER per tornare al menu'.");
     }
 }
 
@@ -99,7 +99,7 @@ int persistRegistration (Person p) {
     file = fopen("customerRegistration.txt", "a+");
     if (file != NULL) {
         fprintf(file, "%s\t%s\n", p.fiscalCode, p.password);
-        fflush(stdin);
+        flushInput();
         fclose(file);
         return 0;
     }
@@ -111,7 +111,7 @@ int persistTestCenterRegistration (TestCenter t) {
     file = fopen("testcenterregistration.txt", "a+");
     if (file != NULL) {
         fprintf(file, "%s\t%s\n", t.identificationNumber, t.password);
-        fflush(stderr);
+        flushInput();
         fclose(file);
         return 0;
     }
@@ -140,10 +140,10 @@ int loginCustomer(char *sessionUserCode) {
     char userInputPassword[21];
     printf("\nInserisci il tuo codice fiscale\n");
     scanf("%16s", userInputFiscalCode);
-    fflush(stdin);
+    flushInput();
     printf("\nInserisci la tua password\n");
     scanf("%20s", userInputPassword);
-    fflush(stdin);
+    flushInput();
 
     int eofCheck = 0;
     int fcCompare = 1;
@@ -156,10 +156,10 @@ int loginCustomer(char *sessionUserCode) {
         if (fcCompare == 0) {
             if (strcmp(userInputPassword, filePassword) == 0) {
                 strcpy(sessionUserCode, fileFiscalCode);
-                waitInputPrint("\nLogin effettuato con successo!\nPremi INVIO per continuare");
+                waitInputPrint("\nLogin effettuato con successo!\nPremi ENTER per tornare al menu'");
                 return 0;
             } else {
-                waitInputPrint("\n\nCredenziali errate\n\n\tPremi un tasto per tornare al menu'");
+                waitInputPrint("\n\nCredenziali errate\n\n\tPremi ENTER per tornare al menu'");
                 return 1;
             }
 
@@ -167,7 +167,7 @@ int loginCustomer(char *sessionUserCode) {
     } while (fcCompare != 0 && eofCheck != EOF);
 
     //Se arrivo qui significa che non ho mai trovato l'utente e quindi non è registrato
-    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi un tasto per tornare al menu'");
+    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi ENTER per tornare al menu'");
     return 2;
 }
 
@@ -185,10 +185,10 @@ int loginTestCenter() {
 
     printf("Inserisci il tuo codice operatore\n");
     scanf("%5s", userInputOperatorId);
-    fflush(stdin);
+    flushInput();
     printf("Inserisci la tua password\n");
     scanf("%20s", userInputPassword);
-    fflush(stdin);
+    flushInput();
 
     int eofCheck = 0;
     int codeCompare = 1;
@@ -202,15 +202,15 @@ int loginTestCenter() {
 
         if (codeCompare == 0) {
             if (strcmp(userInputPassword, filePassword) == 0) {
-                waitInputPrint("\n\nLogin effettuato con successo\n\n\tPremi un tasto per tornare al menu'");
+                waitInputPrint("\n\nLogin effettuato con successo\n\n\tPremi ENTER per tornare al menu'");
                 return 0;
             } else {
-                waitInputPrint("\n\nCredenziali errate\n\n\tPremi un tasto per tornare al menu'");
+                waitInputPrint("\n\nCredenziali errate\n\n\tPremi ENTER per tornare al menu'");
                 return 1;
             }
         }
     } while (eofCheck != EOF && codeCompare != 0);
 
-    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi un tasto per tornare al menu'");
+    waitInputPrint("\n\nMolto probabilmente non sei registrato\n\n\tPremi ENTER per tornare al menu'");
     return 2;
 }

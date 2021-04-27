@@ -26,4 +26,5 @@ PtrReservation searchReservationByTimeOfDay(PtrReservation head, int timeOfTheDa
 int searchReservationByFiscalCode(PtrReservation head, char *fiscalCode);
 PtrReservation loadReservationsFromFile(char *filename);
 void printMergedListsOnFileWrapper();
+PtrReservation emptyReservationList(PtrReservation reservation);
 #endif
